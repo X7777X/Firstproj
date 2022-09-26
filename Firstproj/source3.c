@@ -4,7 +4,7 @@
 #define D 2.54
 #define SD 2.32
 #define M 1.852
-
+#define g 9.8
 
 void main()
 {
