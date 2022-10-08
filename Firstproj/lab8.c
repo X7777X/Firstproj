@@ -56,15 +56,22 @@ void indiv3dz() //3 вариант
 {
 	int n;
 	float a;
-	float s = 0;
+	float p, s = 0;
 	puts("Введите значение n(кол-во дробей) и значение a: ");
 	scanf("%d %f", &n, &a);
 
 	for (int i = 0; i <= n; i++) {
-		if (i == 0)
+		if (i == 0) {
 			s += 1 / a;
-		else
-			s += 1 / (a * (a + i));
+			p = 1 / a;
+		}
+		else {
+			s += p * 1 / (a + i);
+			p = p * 1 / (a + i);
+
+		}
+			
+
 	}
 	printf("%f", s);
 }
