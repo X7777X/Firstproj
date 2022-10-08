@@ -71,7 +71,6 @@ void indiv3dz() //3 вариант
 
 		}
 			
-
 	}
 	printf("%f", s);
 }
