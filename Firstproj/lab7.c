@@ -28,30 +28,79 @@ void task2()
 {
 	float x, y;
 	char c;
-	puts("Введите значения и операцию:");
-	scanf("%f %c %y", &x, &c, &y);
 
-	printf("%c\n", c);
+	puts("Введите значения и операцию:");
+	scanf("%f %c %f", &x, &c, &y);
+
 
 	switch (c)
 	{
 	case '+':
-		printf("%f + %f = %f\n", x, y, x + y);
+		printf("%f\n", x + y);
+		break;
 	case '-':
-		printf("%f - %f = %f\n", x, y, x - y);
+		printf("%f\n",x - y);
+		break;
 	case '*':
-		printf("%f * %f = %f\n", x, y, x * y);
+		printf("%f\n", x * y);
+		break;
 	case '/':
-		printf("%f / %f = %f\n", x, y, x / y);
+		printf("%f\n",x / y);
+		break;
+	case '^':				//доп. функционал
+		printf("%f", pow(x, y));
 	}
 }
+
+void task3() //3 вариант
+{
+	int number;
+
+	puts("Введите число: ");
+	scanf("%d", &number);
+
+	switch (number % 10)
+	{
+	case 1:
+		puts("Последняя цифра двухзначного числа - не простое число");
+		break;
+	case 2:
+		puts("Последняя цифра двухзначного числа - простое число");
+		break;
+	case 3:
+		puts("Последняя цифра двухзначного числа - простое число");
+		break;
+	case 4:
+		puts("Последняя цифра двухзначного числа - не простое число");
+		break;
+	case 5:
+		puts("Последняя цифра двухзначного числа - простое число");
+		break;
+	case 6:
+		puts("Последняя цифра двухзначного числа - не простое число");
+		break;
+	case 7:
+		puts("Последняя цифра двухзначного числа - простое число");
+		break;
+	case 8:
+		puts("Последняя цифра двухзначного числа - не простое число");
+		break;
+	case 9:
+		puts("Последняя цифра двухзначного числа - не простое число");
+		break;
+	}
+
+
+}
+
 
 int main()
 {
 	setlocale(LC_ALL, "RUS");
-	//task1();
-	task2();
+	task1();
+	//task2();
 	//task3();
-	
+
+
 	return 0;
 }
