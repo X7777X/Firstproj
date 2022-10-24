@@ -56,23 +56,18 @@ void task2() //вариант 3
 
 void task3() //3 вариант
 {
-	int i = 0;
-	float a;
-	float p, s = 0;
-	puts("Введите значение n(кол-во дробей) и значение a: ");
-	scanf("%f", &a);
+	int a, b;
+	char c;
 
-	while (2 == 2) {
-		if (i == 0) {
-			s += 1 / a;
-			p = 1 / a;
+	printf("Введите значение стороны стороны и символ: ");
+	scanf("%d %c", &b, &c);
+	
+
+	for (int i = 1; i <= b; i++) {
+		for (int j = 1; j <= i; j++) {
+			printf("%c", c);
 		}
-		else {
-			s += p * 1 / (a + i);
-			p = p * 1 / (a + i);
-		}
-		i += 1;
-		printf("%f ", s);
+		printf("\n");
 	}
 }
 
