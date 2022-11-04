@@ -95,9 +95,9 @@ int main()
 {
 	setlocale(LC_ALL, "RUS");
 
-	//task1();
+	task1();
 	//task2();
-	task3();
+	//task3();
 
 
 	return 0;
