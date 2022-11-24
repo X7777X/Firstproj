@@ -2,7 +2,7 @@
 #include <locale.h>
 #include <stdlib.h>
 
-char A[9][9];
+int A[9][11];
 void sportoutput()
 {
 	printf("Вид спорта - волейбол");
@@ -10,11 +10,11 @@ void sportoutput()
 void alltableoutput()
 {
 	printf("Турнирная таблица:\n");
-	printf("	0	1	2	3	4	5	6	7	8\n");
+	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8     Очки    Место\n");
 	for (int i = 0; i < 9; i++) {
-		printf("%d ", i);
-		for (int j = 0; j < 9; j++) {
-			printf("	%c", A[i][j]);
+		printf("	%d ", i);
+		for (int j = 0; j < 11; j++) {
+			printf("%8d", A[i][j]);
 		}
 		printf("\n");
 	}
@@ -33,15 +33,24 @@ int main()
 
 	printf("Введите 1 для вывода вида спорта\n2 - для вывода турнирной таблицы\n3 - для вывода результата конкретного матча\n");
 	scanf("%d", &n);
-
 	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
+		for (int j = 0; j < 11; j++) {
 			if (i == j)
-				A[i][j] = "!";
+				A[i][j] = 0;
 			else if ((rand() % 2) == 0)
-				A[i][j] = 'W';
+				A[i][j] = 0;
 			else
-				A[i][j] = 'L';
+				A[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 11; j++) {
+			if (i == j)
+				A[i][j] = -1;
+			else {
+				A[i][j] = rand() % 4;
+				A[j][i] = 3 - A[i][j];
+			}
 		}
 	}
 	switch (n)
@@ -53,15 +62,15 @@ int main()
 		alltableoutput();
 		break;
 	case 3:
-		printf("Индексы команд:\nАрзамас - 0\nВятич - 1\nТранспневматика - 2\nМеталлург - 3\nАрзамасский район - 4\nСпартак - 5\nСергач - 6\nАвтодеталь - 7\n");
+		printf("Индексы команд:\nВолгоград - 0\nЕкатеринбург - 1\nМосква - 2\nНовотроицк - 3\nОренбург - 4\nОмск - 5\nХромтау - 6\nЧелябинск - 7\n");
 		printf("Введите индексы команд:");
-		scanf("%d %d", &a, &b);
+		scanf("%d%d", &a, &b);
 		_1playoutput(a, b);
 		break;
 	default:
 		printf("Я таких значений не знаю");
 	}
-	
-	
+
+
 	return 0;
 }
