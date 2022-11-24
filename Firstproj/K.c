@@ -28,7 +28,7 @@ int main()
 {
 	setlocale(LC_ALL, "RUS");
 	int i, j;
-	int point, a, b;
+	int point, sum = 0, a, b;
 
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 11; j++) {
@@ -37,10 +37,15 @@ int main()
 			else {
 				A[i][j] = rand() % 4;
 				A[j][i] = 3 - A[i][j];
+				sum += A[i][j];
+			}
+
+			if (j == 9) {
+				A[i][j] = sum;
 			}
 		}
 	}
-
+	printf("%d", A[0][10]);
 	printf("Введите 1 - для вывода вида спорта\n	2 - для вывода турнирной таблицы\n	3 - для вывода результата конкретного матча\n");
 
 	while (scanf("%d", &point) != EOF) {
