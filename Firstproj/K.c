@@ -5,7 +5,7 @@
 int A[9][11];
 void sportoutput()
 {
-	printf("Вид спорта - волейбол");
+	printf("Вид спорта - волейбол\n");
 }
 void alltableoutput()
 {
@@ -22,27 +22,14 @@ void alltableoutput()
 void _1playoutput(a, b)
 {
 	printf("Результат относительно 1 команды: ");
-	printf("[%d] [%d] = %4c", a, b, A[a][b]);
+	printf("[%d] [%d] = %4d\n", a, b, A[a][b]);
 }
 int main()
 {
 	setlocale(LC_ALL, "RUS");
 	int i, j;
-	int n, a, b;
+	int point, a, b;
 
-
-	printf("Введите 1 для вывода вида спорта\n2 - для вывода турнирной таблицы\n3 - для вывода результата конкретного матча\n");
-	scanf("%d", &n);
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 11; j++) {
-			if (i == j)
-				A[i][j] = 0;
-			else if ((rand() % 2) == 0)
-				A[i][j] = 0;
-			else
-				A[i][j] = 0;
-		}
-	}
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 11; j++) {
 			if (i == j)
@@ -53,22 +40,28 @@ int main()
 			}
 		}
 	}
-	switch (n)
-	{
-	case 1:
-		sportoutput();
-		break;
-	case 2:
-		alltableoutput();
-		break;
-	case 3:
-		printf("Индексы команд:\nВолгоград - 0\nЕкатеринбург - 1\nМосква - 2\nНовотроицк - 3\nОренбург - 4\nОмск - 5\nХромтау - 6\nЧелябинск - 7\n");
-		printf("Введите индексы команд:");
-		scanf("%d%d", &a, &b);
-		_1playoutput(a, b);
-		break;
-	default:
-		printf("Я таких значений не знаю");
+
+	printf("Введите 1 - для вывода вида спорта\n	2 - для вывода турнирной таблицы\n	3 - для вывода результата конкретного матча\n");
+
+	while (scanf("%d", &point) != EOF) {
+		switch (point)
+		{
+		case 1:
+			sportoutput();
+			break;
+		case 2:
+			alltableoutput();
+			break;
+		case 3:
+			printf("Индексы команд:\nВолгоград - 0\nЕкатеринбург - 1\nМосква - 2\nНовотроицк - 3\nОренбург - 4\nОмск - 5\nХромтау - 6\nЧелябинск - 7\n");
+			printf("Введите индексы команд:");
+			scanf("%d%d", &a, &b);
+			_1playoutput(a, b);
+			break;
+		default:
+			printf("Я таких значений не знаю\n");
+		}
+		printf("Введите 1 - для вывода вида спорта\n	2 - для вывода турнирной таблицы\n	3 - для вывода результата конкретного матча\n");
 	}
 
 
