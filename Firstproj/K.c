@@ -6,6 +6,7 @@
 
 void Source_table();
 void Result_table();
+void table_output(int** array);
 int search(int** array, int* array2, int n);
 int sort(int** array);
 int total_points(int** array);
@@ -25,9 +26,6 @@ int main()
 
 
 
-
-
-	
 	while (point != 7) {
 		printf("МЕНЮ:\n1. Чтение значений из файла и вывод исходной таблицы.\n2. Вывод результирующей таблицы(очки/места)\n3. Заполнение таблицы случайными значениями\n\
 4. Поиск команд, набравших более n очков.\n5. Сортировка таблицы по убыванию.\n6. Вычислить общее, среднее, минимальное и максимальное количество очков по командам спортсменам.\n7. Завершение программы.");
@@ -48,12 +46,15 @@ int main()
 			break;
 		case 4:
 			system("cls");
+			table_output(table);
 			printf("Введите кол-во очков:\n");
 			scanf("%d", &n);
 			kol = search(table, comandlist, n);
+			printf("Команды, которые набрали более %d очков: ", n);
 			for (int i = 0; i < kol; i++) {
 				printf("%d ", comandlist[i]);
 			}
+			puts("");
 			break;
 		case 5:
 			system("cls");
@@ -61,27 +62,33 @@ int main()
 			break;
 		case 6:
 			system("cls");
+			table_output(table);
 			printf("МЕНЮ:\n1. Общее кол-во очков.\n2. Среднее кол-во очков.\n3. Минимальное кол-во очков.\n4. Максимальное кол-во очков.");
 			scanf("%d", &point);
 			switch (point)
 			{
 			case 1:
 				system("cls");
+				table_output(table);
 				printf("Общее кол-во очков, набранных всеми командами равно: %d\n", total_points(table));
 				break;
 			case 2:
 				system("cls");
+				table_output(table);
 				printf("Среднее кол-во очков, набранных всеми командами равно: %d\n", average_points(table));
 				break;
 			case 3:
 				system("cls");
+				table_output(table);
 				printf("Минимальное кол-во очков среди всех команд равно: %d\n", min_points(table));
 				break;
 			case 4:
 				system("cls");
+				table_output(table);
 				printf("Максимальное кол-во очков среди всех команд: %d\n", max_points(table));
 				break;
 			}
+			break;
 		case 7:
 			break;
 		default:
@@ -91,13 +98,33 @@ int main()
 
 	}
 	
+
 	return 0;
 }
-
+void table_output(int array[9][12])
+{
+	printf("Результирующая турнирная таблица:\n");
+	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8     Очки    Место\n");
+	for (int i = 0; i < 9; i++) {
+		printf("	%d ", i);
+		for (int j = 0; j < 11; j++) {
+			if (i == j)
+				printf("%8c", 'o');
+			else
+				printf("%8d", array[i][j]);
+		}
+		printf("\n");
+	}
+}
 int** randomznach(int array[9][12])
 {
-	
+
 	int sum;
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 11; j++) {
+			array[i][j] = 0;
+		}
+	}
 	for (int i = 0; i < 9; i++) {
 		sum = 0;
 		for (int j = 0; j < 11; j++) {
@@ -118,7 +145,7 @@ int** randomznach(int array[9][12])
 		for (int j = 0; j < 9; j++) {
 			if (i == j)
 				printf("%8c", 'o');
-			else 
+			else
 				printf("%8d", array[i][j]);
 		}
 		printf("\n");
@@ -153,7 +180,7 @@ void Source_table(int array[9][12])
 		for (int j = 0; j < 9; j++) {
 			if (i == j)
 				printf("%8c", 'o');
-			else 
+			else
 				printf("%8d", array[i][j]);
 		}
 		printf("\n");
@@ -162,7 +189,7 @@ void Source_table(int array[9][12])
 
 }
 
-void Result_table(int array [9][12])
+void Result_table(int array[9][12])
 {
 	int max = -111, flag = 0, sum, maxi = 0, maxj = 0;
 	int maxpr[9];
@@ -223,7 +250,7 @@ void Result_table(int array [9][12])
 	}
 }
 
-int search(int array [9][12], int* array2, int n) // Поиск команд, набравших более 11 очков
+int search(int array[9][12], int* array2, int n) // Поиск команд, набравших более n очков
 {
 	int kol = 0;
 	for (int i = 0; i < 9; i++) {
@@ -239,7 +266,7 @@ int search(int array [9][12], int* array2, int n) // Поиск команд, н
 int sort(int array[9][12]) //Функция сортировки записей 
 {
 	int tmp;
-	
+
 	for (int i = 0; i < 9; i++) {
 		array[i][11] = i;
 	}
@@ -256,8 +283,8 @@ int sort(int array[9][12]) //Функция сортировки записей
 				}
 
 			}
-			
-			
+
+
 		}
 		printf("%\n");
 	}
@@ -276,7 +303,7 @@ int sort(int array[9][12]) //Функция сортировки записей
 
 	return 1;
 }
-int total_points(int array[9][12])
+int total_points(int array[9][12]) //
 {
 	int total = 0;
 	for (int i = 0; i < 9; i++) {
