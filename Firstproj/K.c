@@ -119,14 +119,12 @@ void table_output(int array[9][12])
 int** randomznach(int array[9][12])
 {
 
-	int sum;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 11; j++) {
 			array[i][j] = 0;
 		}
 	}
 	for (int i = 0; i < 9; i++) {
-		sum = 0;
 		for (int j = 0; j < 11; j++) {
 			if (i == j) {
 				array[i][j] = -1;
