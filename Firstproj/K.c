@@ -1,338 +1,244 @@
 #include <stdio.h>
+#include <malloc.h>
 #include <locale.h>
+#include <string.h>
 #include <stdlib.h>
-#include <time.h>
+#include <windows.h>
+ 
 
+struct ram* sort(struct ram* a, int* c);
+struct ram* reading(int* n);
+struct ram* new_entry(struct ram* b, int* c);
+void output(struct ram* b, int* c);
+struct ram* find_entry_amount(struct ram* a, int* c);
+struct ram* edit_entry(struct ram* a);
+struct ram* adding_entries_to_a_file(struct ram* a, int* c);
+void writing(struct ram* a, int* c);
 
-void Source_table();
-void Result_table();
-void table_output(int** array);
-int search(int** array, int* array2, int n);
-int sort(int** array);
-int total_points(int** array);
-int average_points(int** array);
-int max_points(int** array);
-int min_points(int** array);
-int** randomznach(int** array);
+struct ram {
+	int amount;
+	char name[9];
+	float supply_voltage;
+	int clock_frequency;
+	char type[5];
+};
+
 
 int main()
 {
+	struct ram* a;
 	setlocale(LC_ALL, "RUS");
-	srand(time(NULL));
-	int sum = 0, kol = 0, n = 0, point = 1;
-	int table[9][12];
-	int comandlist[9];
-	int comandlist2[9];
+	int s = 0;
+	int* n = &s;
+	int point = 1;
+
+	printf("Считывание данных из файла:\n");
+	a = reading(n);
+	output(a, n);
 
 
-
-	while (point != 7) {
-		printf("МЕНЮ:\n1. Чтение значений из файла и вывод исходной таблицы.\n2. Вывод результирующей таблицы(очки/места)\n3. Заполнение таблицы случайными значениями\n\
-4. Поиск команд, набравших более n очков.\n5. Сортировка таблицы по убыванию.\n6. Вычислить общее, среднее, минимальное и максимальное количество очков по командам спортсменам.\n7. Завершение программы.");
+	while (point != 0) {
+		printf("\n0. Выход.\n1. Поиск записей по объему/тактовой частоте оперативной памяти.\n2.Сортировка по объему оперативной памяти.\n3.Создание записи.\
+				\n4. Изменение отдельных записей в файле.\n6. Добавить произвольное кол-во записей в файл.\n");
 		scanf("%d", &point);
-		switch (point)
-		{
+		switch (point) {
 		case 1:
-			system("cls");
-			Source_table(table);
+			find_entry_amount(a, n);
 			break;
 		case 2:
-			system("cls");
-			Result_table(table);
+			sort(a, n);
+			output(a, n);
 			break;
 		case 3:
-			system("cls");
-			randomznach(table);
+			new_entry(a, n);
+			output(a, n);
 			break;
 		case 4:
-			system("cls");
-			table_output(table);
-			printf("Введите кол-во очков:\n");
-			scanf("%d", &n);
-			kol = search(table, comandlist, n);
-			printf("Команды, которые набрали более %d очков: ", n);
-			for (int i = 0; i < kol; i++) {
-				printf("%d ", comandlist[i]);
-			}
-			puts("");
-			break;
-		case 5:
-			system("cls");
-			sort(table, comandlist2);
+			edit_entry(a);
+			output(a, n);
+			writing(a, n);
 			break;
 		case 6:
-			system("cls");
-			table_output(table);
-			printf("МЕНЮ:\n1. Общее кол-во очков.\n2. Среднее кол-во очков.\n3. Минимальное кол-во очков.\n4. Максимальное кол-во очков.");
-			scanf("%d", &point);
-			switch (point)
-			{
-			case 1:
-				system("cls");
-				table_output(table);
-				printf("Общее кол-во очков, набранных всеми командами равно: %d\n", total_points(table));
-				break;
-			case 2:
-				system("cls");
-				table_output(table);
-				printf("Среднее кол-во очков, набранных всеми командами равно: %d\n", average_points(table));
-				break;
-			case 3:
-				system("cls");
-				table_output(table);
-				printf("Минимальное кол-во очков среди всех команд равно: %d\n", min_points(table));
-				break;
-			case 4:
-				system("cls");
-				table_output(table);
-				printf("Максимальное кол-во очков среди всех команд: %d\n", max_points(table));
-				break;
-			}
-			break;
-		case 7:
-			break;
-		default:
-			printf("Я таких значений не знаю\n");
-			break;
-		}
+			adding_entries_to_a_file(a, n);
+			output(a, n);
+			writing(a, n);
 
+		}
 	}
+
 	
 
-	return 0;
-}
-void table_output(int array[9][12])
+	return 9;
+}	
+
+struct ram* edit_entry(struct ram* a)
 {
-	printf("Результирующая турнирная таблица:\n");
-	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8     Очки    Место\n");
-	for (int i = 0; i < 9; i++) {
-		printf("	%d ", i);
-		for (int j = 0; j < 11; j++) {
-			if (i == j)
-				printf("%8c", 'o');
-			else
-				printf("%8d", array[i][j]);
-		}
-		printf("\n");
-	}
-}
-int** randomznach(int array[9][12])
-{
+	int i;
 
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 11; j++) {
-			array[i][j] = 0;
-		}
-	}
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 11; j++) {
-			if (i == j) {
-				array[i][j] = -1;
-			}
-			else if (j < 9 && ((array[i][j] + array[j][i]) != 3)) {
-				array[i][j] = rand() % 4;
-				array[j][i] = 3 - array[i][j];
-			}
-		}
-	}
+	printf("Введите номер редактируемой записи: ");
+	scanf("%d", &i);
 
-	printf("Турнирная таблица:\n");
-	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8\n");
-	for (int i = 0; i < 9; i++) {
-		printf("	%d ", i);
-		for (int j = 0; j < 9; j++) {
-			if (i == j)
-				printf("%8c", 'o');
-			else
-				printf("%8d", array[i][j]);
-		}
-		printf("\n");
-	}
+	printf("Введите имя модуля оперативной памяти: ");
+	scanf("%s", a[i - 1].name);
+	printf("Введите объем модуля оперативной памяти: ");
+	scanf("%d", &a[i - 1].amount);
+	printf("Введите напряжение питания модуля оперативной памяти: ");
+	scanf("%f", &a[i - 1].supply_voltage);
+	printf("Введите тактовую частоту оперативной памяти: ");
+	scanf("%d", &a[i - 1].clock_frequency);
+	printf("Введите тип оперативной памяти: ");
+	scanf("%s", a[i - 1].type);
 
-	return array;
+	return a;
 }
 
-
-
-void Source_table(int array[9][12])
+void writing(struct ram* a, int *c)
 {
-	char fname[20] = "znachtable.txt";
-	FILE* out;
+	FILE* file;
 
-	out = fopen("znachtable.txt", "r");
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			if (i == j)
-				array[i][j] = -1;
-			else if ((array[i][j] + array[j][i]) != 3) {
-				fscanf(out, "%d", &array[i][j]);
-				array[j][i] = 3 - array[i][j];
-			}
-		}
+	file = fopen("entries.txt", "w");
+
+	for (int i = 0; i < *c; i++) {
+		fprintf(file, "%d. %8s %d %f %d %s\n", i + 1, a[i].name, a[i].amount, a[i].supply_voltage, a[i].clock_frequency, a[i].type);
 	}
 
-	printf("Турнирная таблица:\n");
-	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8\n");
-	for (int i = 0; i < 9; i++) {
-		printf("	%d ", i);
-		for (int j = 0; j < 9; j++) {
-			if (i == j)
-				printf("%8c", 'o');
-			else
-				printf("%8d", array[i][j]);
-		}
-		printf("\n");
+	fclose(file);
+}
+struct ram* reading(int* n)
+{
+	struct ram* a = NULL;
+	FILE* file;
+	int i = 0;
+	file = fopen("entries.txt", "r");
+	if (file == NULL) {
+		puts("File could not be opened");
+
+	}
+	while (!feof(file)) {
+		*n += 1;
+		a = (struct ram*)realloc(a, *n * sizeof(struct ram));
+		fscanf(file, "%d.%s%d%f%d%s\n", &i, &a[i].name, &a[i].amount, &a[i].supply_voltage, &a[i].clock_frequency, &a[i].type);
 	}
 
+	fclose(file);
+
+	return a;
+}
+
+struct ram* new_entry(struct ram* b, int* c)
+{
+	*c += 1;
+	b = (struct ram*)realloc(b, *c * sizeof(struct ram));
+	printf("Введите название модуля оперативной памяти: ");
+	scanf("%s", b[*c - 1].name);
+	printf("Введите объем модуля оперативной памяти: ");
+	scanf("%d", &b[*c - 1].amount);
+	printf("Введите напряжение питания модуля оперативной памяти: ");
+	scanf("%f", &b[*c - 1].supply_voltage);
+	printf("Введите тактовую частоту модуля оперативной памяти: ");
+	scanf("%d", &b[*c - 1].clock_frequency);
+	printf("Введите тип памяти модуля оперативной памяти: ");
+	scanf("%s", b[*c - 1].type);
+	return b;
+}
+
+void output(struct ram* a, int* c)
+{
+
+	for (int i = 0; i < *c; i++) {
+		printf("%d. Название:%11s, Объем: %2d ГБ, Напряжение питания: %.1f В, Тактовая чистота: %d МГц, Тип памяти: %s;\n", i + 1, a[i].name, a[i].amount, a[i].supply_voltage, a[i].clock_frequency, a[i].type);
+	}
+}
+struct ram* find_entry_amount(struct ram* a, int* c)
+{
+	int point, amount1, clock_frequency1;
+	printf("1. Поиск по объему памяти.\n2. Поиск по тактовой частоте.\n3. Поиск по объему и тактовой частоте ОЗУ.\n");
+	scanf("%d", &point);
+	switch (point) {
+	case 1:
+		printf("Введите значение для поиска по объему памяти: ");
+		scanf("%d", &amount1);
+
+		for (int i = 0; i < *c; i++) {
+			if (a[i].amount == amount1)
+				printf("%d. Название:%11s, Объем: %2d ГБ, Напряжение питания: %.1f В, Тактовая чистота: %d МГц, Тип памяти: %s;\n", i + 1, a[i].name, a[i].amount, a[i].supply_voltage, a[i].clock_frequency, a[i].type);
+		}
+		break;
+	case 2: 
+		printf("Введите значение для поиска по объему памяти: ");
+		scanf("%d", &clock_frequency1);
+		for (int i = 0; i < *c; i++) {
+			if (a[i].clock_frequency == clock_frequency1)
+				printf("%d. Название:%11s, Объем: %2d ГБ, Напряжение питания: %.1f В, Тактовая чистота: %d МГц, Тип памяти: %s;\n", i + 1, a[i].name, a[i].amount, a[i].supply_voltage, a[i].clock_frequency, a[i].type);
+		}
+		break;
+	case 3:
+		printf("Введите значение объема памяти: ");
+		scanf("%d", &amount1);
+		printf("Введите значение тактовой частоты памяти: ");
+		scanf("%d", &clock_frequency1);
+		for (int i = 0; i < *c; i++) {
+			if ((a[i].amount == amount1) && (a[i].clock_frequency == clock_frequency1))
+				printf("%d. Название:%11s, Объем: %2d ГБ, Напряжение питания: %.1f В, Тактовая чистота: %d МГц, Тип памяти: %s;\n", i + 1, a[i].name, a[i].amount, a[i].supply_voltage, a[i].clock_frequency, a[i].type);
+		}
+		break;
+	}
+
+	return a;
 
 }
 
-void Result_table(int array[9][12])
+struct ram* sort(struct ram* a, int* c)
 {
-	int max = -111, flag = 0, sum, maxi = 0, maxj = 0;
-	int maxpr[9];
-	int maxind[9];
-	for (int i = 0; i < 9; i++) {
-		sum = 0;
-		for (int j = 0; j < 10; j++) {
-			if (j < 9 && i != j) {
-				sum += array[i][j];
-			}
-			else if (j == 9) {
-				array[i][j] = sum;
-			}
+	int maxPosition;
+	struct temp {
+		int amount;
+		char name[9];
+		float supply_voltage;
+		int clock_frequency;
+		char type[5];
+	}tmp;
+	for (int i = 0; i < *c; i++)
+	{
+		maxPosition = i;
+		for (int j = i + 1; j < *c; j++)
+			if (a[maxPosition].amount < a[j].amount)
+				maxPosition = j;
+
+		for (int k = 0; k < 9; k++) {
+			tmp.name[k] = a[maxPosition].name[k];
+			a[maxPosition].name[k] = a[i].name[k];
+			a[i].name[k] = tmp.name[k];
 		}
-	}
-	for (int k1 = 0; k1 < 9; k1++) {		//ЗАПОЛНЕНИЕ СТОЛБЦА С МЕСТАМИ
-		max = -111;
-		for (int k2 = 0; k2 < 9; k2++) {
-			for (int k3 = 9; k3 < 10; k3++) {
-				if (array[k2][k3] > max) {
-					for (int k4 = 0; k4 < 9; k4++) {
-						if (array[k2][k3] == maxpr[k4]) {
-							for (int k5 = 0; k5 < 9; k5++) {
-								if ((k2 + k3) == maxind[k5])
-									flag = 1;
 
-							}
-						}
-
-					}
-					if (flag == 0) {
-						max = array[k2][k3];
-						maxi = k2;
-						maxj = k3;
-					}
-					flag = 0;
-				}
-			}
+		for (int k = 0; k < 5; k++) {
+			tmp.type[k] = a[maxPosition].type[k];
+			a[maxPosition].type[k] = a[i].type[k];
+			a[i].type[k] = tmp.type[k];
 		}
-		maxpr[k1] = max;
-		maxind[k1] = maxi + maxj;
-		array[maxi][maxj + 1] = k1 + 1;
+
+		tmp.amount = a[maxPosition].amount;
+		tmp.supply_voltage = a[maxPosition].supply_voltage;
+		tmp.clock_frequency = a[maxPosition].clock_frequency;
+		a[maxPosition].amount = a[i].amount;
+		a[maxPosition].supply_voltage = a[i].supply_voltage;
+		a[maxPosition].clock_frequency = a[i].clock_frequency;
+		a[i].amount = tmp.amount;
+		a[i].supply_voltage = tmp.supply_voltage;
+		a[i].clock_frequency = tmp.clock_frequency;
 	}
 
-
-	//ВЫВОД РЕЗУЛЬТИРУЮЩЕЙ ТАБЛИЦЫ
-	printf("Результирующая турнирная таблица:\n");
-	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8     Очки    Место\n");
-	for (int i = 0; i < 9; i++) {
-		printf("	%d ", i);
-		for (int j = 0; j < 11; j++) {
-			if (i == j)
-				printf("%8c", 'o');
-			else
-				printf("%8d", array[i][j]);
-		}
-		printf("\n");
-	}
+	return a;
 }
-
-int search(int array[9][12], int* array2, int n) // Поиск команд, набравших более n очков
+struct ram* adding_entries_to_a_file(struct ram* a, int *c)
 {
-	int kol = 0;
-	for (int i = 0; i < 9; i++) {
-		for (int j = 9; j < 10; j++) {
-			if (array[i][j] > n) {
-				array2[kol] = i;
-				kol += 1;
-			}
-		}
+	int s = 1;
+
+	while (s != 2)
+	{
+		new_entry(a, c);
+		printf("Ввести еще одну запись? - 1/2");
+		scanf("%d", &s);
 	}
-	return kol;
-}
-int sort(int array[9][12]) //Функция сортировки записей 
-{
-	int tmp;
-
-	for (int i = 0; i < 9; i++) {
-		array[i][11] = i;
-	}
-	for (int k = 0; k < 9; k++) {
-		for (int k1 = 0; k1 < 9; k1++) {
-			for (int k2 = 10; k2 < 11; k2++) {
-				if (array[k1][k2] == (k + 1)) {
-					for (int k3 = 0; k3 < 12; k3++) {
-						tmp = array[k][k3];
-						array[k][k3] = array[k1][k3];
-						array[k1][k3] = tmp;
-
-					}
-				}
-
-			}
-
-
-		}
-		printf("%\n");
-	}
-	printf("Результирующая турнирная таблица:\n");
-	printf("   № команды	 0	 1	 2	 3	 4	 5	 6	 7	 8     Очки    Место\n");
-	for (int i = 0; i < 9; i++) {
-		printf("	%d ", array[i][11]);
-		for (int j = 0; j < 11; j++) {
-			if (array[i][j] == -1)
-				printf("%8c", 'o');
-			else
-				printf("%8d", array[i][j]);
-		}
-		printf("\n");
-	}
-
-	return 1;
-}
-int total_points(int array[9][12]) //
-{
-	int total = 0;
-	for (int i = 0; i < 9; i++) {
-		total += array[i][9];
-	}
-	return total;
-}
-int average_points(int array[9][12])
-{
-	int average;
-	average = total_points(array) / 9;
-
-	return average;
-}
-int max_points(int array[9][12])
-{
-	int max = -111;
-
-	for (int i = 0; i < 9; i++) {
-		if (array[i][9] > max)
-			max = array[i][9];
-	}
-	return max;
-}
-int min_points(int array[9][12])
-{
-	int min = 111;
-
-	for (int i = 0; i < 9; i++) {
-		if (array[i][9] < min)
-			min = array[i][9];
-	}
-	return min;
+	return a;
 }
