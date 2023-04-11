@@ -10,7 +10,7 @@ struct ram* sort( struct ram* dynamic_array, int* ptr_to_number_of_elements );
 struct ram* reading( int* ptr_to_number_of_elements );
 struct ram* new_entry( struct ram* dynamic_array, int* ptr_to_number_of_elements );
 void output( struct ram* dynamic_array, int* ptr_to_number_of_elements );
-struct ram* find_entry_amount( struct ram* dynamic_array, int* ptr_to_number_of_elements );
+struct ram* find_entry( struct ram* dynamic_array, int* ptr_to_number_of_elements );
 struct ram* edit_entry( struct ram* dynamic_array );
 struct ram* adding_entries_to_a_file( struct ram* dynamic_array, int* ptr_to_number_of_elements );
 void writing( struct ram* dynamic_array, int* ptr_to_number_of_elements );
@@ -47,7 +47,7 @@ int main()
 		switch ( point ) 
 		{
 		case 1:
-			find_entry_amount( dynamic_array, ptr_to_number_of_elements );
+			find_entry( dynamic_array, ptr_to_number_of_elements );
 			break;
 		case 2:
 			sort( dynamic_array, ptr_to_number_of_elements );
@@ -77,7 +77,7 @@ int main()
 
 	
 
-	return 1;
+	return 3;
 }	
 
 //------------редактировать запись в динамическом массиве структур
@@ -127,13 +127,16 @@ struct ram* reading( int* ptr_to_number_of_elements )
 	file = fopen( "entries.txt", "r" );
 	if ( file == NULL ) 
 	{
-		puts( "File could not be opened" );
+		puts( "Файл не может быть октрыт." );
 	}
-	while ( !feof( file ) )
+	else
 	{
-		*ptr_to_number_of_elements += 1;
-		dynamic_array = ( struct ram* )realloc( dynamic_array, *ptr_to_number_of_elements * sizeof( struct ram ) );
-		fscanf( file, "%d.%s%d%f%d%s\n", &i, &dynamic_array[i].name, &dynamic_array[i].amount, &dynamic_array[i].supply_voltage, &dynamic_array[i].clock_frequency, &dynamic_array[i].type );
+		while (!feof(file))
+		{
+			*ptr_to_number_of_elements += 1;
+			dynamic_array = (struct ram*)realloc(dynamic_array, *ptr_to_number_of_elements * sizeof(struct ram));
+			fscanf(file, "%d.%s%d%f%d%s\n", &i, &dynamic_array[i].name, &dynamic_array[i].amount, &dynamic_array[i].supply_voltage, &dynamic_array[i].clock_frequency, &dynamic_array[i].type);
+		}
 	}
 
 	fclose( file );
@@ -174,7 +177,7 @@ void output( struct ram* dynamic_array, int* ptr_to_number_of_elements )
 }
 
 //------------Найти записи по критериям: Объем памяти/Тактовая частота
-struct ram* find_entry_amount( struct ram* dynamic_array, int* ptr_to_number_of_elements )
+struct ram* find_entry( struct ram* dynamic_array, int* ptr_to_number_of_elements )
 {
 	int point, amount1, clock_frequency1;
 
@@ -237,7 +240,7 @@ struct ram* sort( struct ram* dynamic_array, int* ptr_to_number_of_elements )
 		char type[5];
 	}tmp;
 
-	printf( "1. Сортировка по возрастанию.\n2. Сортировка по убыванию." );
+	printf( "1. Сортировка по убыванию.\n2. Сортировка по возрастанию.\n\nВы ввели: " );
 	scanf( "%d", &point );
 
 	if ( point == 1 ) 
