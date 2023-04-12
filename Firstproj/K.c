@@ -29,16 +29,16 @@ struct ram
 int main()
 {
 	struct ram* dynamic_array;
-	setlocale(LC_ALL, "RUS");
+	system("chcp 1251");
 	int number_of_dynArray_elements = 0;
-	int* ptr_to_number_of_elements = &number_of_dynArray_elements;
+
 	int point = 1;
 
 	printf("Считывание данных из файла:\n");
-	dynamic_array = reading(ptr_to_number_of_elements);
-	output(dynamic_array, ptr_to_number_of_elements);
+	dynamic_array = reading(&number_of_dynArray_elements);
+	output(dynamic_array, &number_of_dynArray_elements);
 
-
+	
 	while (point != 0)
 	{
 		printf("\n0. Выход.\n1. Поиск записей по объему/тактовой частоте оперативной памяти.\n2. Сортировка по объему оперативной памяти.\n3. Создание записи.\
@@ -49,28 +49,28 @@ int main()
 		case 0:
 			break;
 		case 1:
-			find_entry(dynamic_array, ptr_to_number_of_elements);
+			find_entry(dynamic_array, &number_of_dynArray_elements);
 			break;
 		case 2:
-			sort(dynamic_array, ptr_to_number_of_elements);
-			output(dynamic_array, ptr_to_number_of_elements);
+			sort(dynamic_array, &number_of_dynArray_elements);
+			output(dynamic_array, &number_of_dynArray_elements);
 			break;
 		case 3:
-			new_entry(dynamic_array, ptr_to_number_of_elements);
-			output(dynamic_array, ptr_to_number_of_elements);
+			new_entry(dynamic_array, &number_of_dynArray_elements);
+			output(dynamic_array, &number_of_dynArray_elements);
 			break;
 		case 4:
 			edit_entry(dynamic_array);
-			output(dynamic_array, ptr_to_number_of_elements);
-			writing(dynamic_array, ptr_to_number_of_elements);
+			output(dynamic_array, &number_of_dynArray_elements);
+			writing(dynamic_array, &number_of_dynArray_elements);
 			break;
 		case 5:
-			writing(dynamic_array, ptr_to_number_of_elements);
+			writing(dynamic_array, &number_of_dynArray_elements);
 			break;
 		case 6:
-			adding_entries_to_a_file(dynamic_array, ptr_to_number_of_elements);
-			output(dynamic_array, ptr_to_number_of_elements);
-			writing(dynamic_array, ptr_to_number_of_elements);
+			adding_entries_to_a_file(dynamic_array, &number_of_dynArray_elements);
+			output(dynamic_array, &number_of_dynArray_elements);
+			writing(dynamic_array, &number_of_dynArray_elements);
 			break;
 		default:
 			printf("Введено неправильное значение.\n");
@@ -122,14 +122,14 @@ void writing(struct ram* dynamic_array, int* ptr_to_number_of_elements)
 //------------Чтение записей из файла 
 struct ram* reading(int* ptr_to_number_of_elements)
 {
-	struct ram* dynamic_array = NULL;
 
 	FILE* file;
+	struct ram* dynamic_array = NULL;
 	int i = 0;
 	file = fopen("entries.txt", "r");
 	if (file == NULL)
 	{
-		puts("Файл не может быть октрыт.");
+		puts("Файл не может быть открыт.");
 	}
 	else
 	{
@@ -139,6 +139,7 @@ struct ram* reading(int* ptr_to_number_of_elements)
 			dynamic_array = (struct ram*)realloc(dynamic_array, *ptr_to_number_of_elements * sizeof(struct ram));
 			fscanf(file, "%d.%s%d%f%d%s\n", &i, &dynamic_array[i].name, &dynamic_array[i].amount, &dynamic_array[i].supply_voltage, &dynamic_array[i].clock_frequency, &dynamic_array[i].type);
 		}
+
 	}
 
 	fclose(file);
@@ -171,29 +172,32 @@ struct ram* new_entry(struct ram* dynamic_array, int* ptr_to_number_of_elements)
 void output(struct ram* dynamic_array, int* ptr_to_number_of_elements)
 {
 
+	
 	for (int i = 0; i < *ptr_to_number_of_elements; i++)
 	{
 		printf("%d. Название:%11s, Объем: %2d ГБ, Напряжение питания: %.1f В, Тактовая чистота: %d МГц, Тип памяти: %s;\n", i + 1, dynamic_array[i].name,
 			dynamic_array[i].amount, dynamic_array[i].supply_voltage, dynamic_array[i].clock_frequency, dynamic_array[i].type);
 	}
+
+
 }
 
 //------------Найти записи по критериям: Объем памяти/Тактовая частота
 struct ram* find_entry(struct ram* dynamic_array, int* ptr_to_number_of_elements)
 {
-	int point, amount1, clock_frequency1;
+	int point, amount1, amount2, clock_frequency1;
 
 	printf("1. Поиск по объему памяти.\n2. Поиск по тактовой частоте.\n3. Поиск по объему и тактовой частоте ОЗУ.\n\nВы ввели: ");
 	scanf("%d", &point);
 	switch (point)
 	{
 	case 1:
-		printf("Введите значение для поиска по объему памяти: ");
-		scanf("%d", &amount1);
+		printf("Введите значения для поиска по объему памяти(от и до): ");
+		scanf("%d%d", &amount1, &amount2);
 
 		for (int i = 0; i < *ptr_to_number_of_elements; i++)
 		{
-			if (dynamic_array[i].amount == amount1)
+			if ((dynamic_array[i].amount >= amount1) && (dynamic_array[i].amount <= amount2))
 				printf("%d. Название:%11s, Объем: %2d ГБ, Напряжение питания: %.1f В, Тактовая чистота: %d МГц, Тип памяти: %s;\n", i + 1, dynamic_array[i].name, dynamic_array[i].amount,
 					dynamic_array[i].supply_voltage, dynamic_array[i].clock_frequency, dynamic_array[i].type);
 		}
