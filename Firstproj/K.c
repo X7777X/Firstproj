@@ -127,6 +127,7 @@ int main()
 		case 6:
 			while (point != 2)
 			{
+				printf("Введите название, объем, напряжение питания, тактовую частоту, тип памяти модуля оперативной памяти:\n");
 				new_entry(dynamic_array, &number_of_dynArray_elements);
 				printf("Ввести еще одну запись? - 1/2\nВы ввели: ");
 				scanf("%d", &point);
