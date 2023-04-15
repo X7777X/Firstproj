@@ -13,7 +13,7 @@ void output(struct ram* dynamic_array, int* ptr_to_number_of_elements);
 struct ram* find_entry(struct ram* dynamic_array, int i, int point, int first_value_of_range,
 	int second_value_of_range, int first_value_of_range2, int second_value_of_range2);
 struct ram* edit_entry(struct ram* dynamic_array);
-void writing(struct ram* dynamic_array, int* ptr_to_number_of_elements);
+void writing(struct ram* dynamic_array, int number_of_dynArray_elements);
 
 struct ram
 {
@@ -22,7 +22,7 @@ struct ram
 	float supply_voltage;
 	int clock_frequency;
 	char type[5];
-};
+}tmp;
 
 /*------------главная функция, ----------------------------------------
 --------------выполняет диалог с пользователем-----------------------*/
@@ -104,8 +104,8 @@ int main()
 				sort(dynamic_array, &number_of_dynArray_elements, point);
 				output(dynamic_array, &number_of_dynArray_elements);
 			}
-			else 
-				printf("Введено неправльное значение.\n");
+			else
+				printf("Введено неправильное значение.\n");
 			break;
 		case 3:
 			printf("Введите название, объем, напряжение питания, тактовую частоту, тип памяти модуля оперативной памяти:\n");
@@ -119,10 +119,10 @@ int main()
 			printf("Введите название, объем, напряжение питания, тактовую частоту, тип памяти модуля оперативной памяти:\n");
 			edit_entry(dynamic_array, point);
 			output(dynamic_array, &number_of_dynArray_elements);
-			writing(dynamic_array, &number_of_dynArray_elements);
+			writing(dynamic_array, number_of_dynArray_elements);
 			break;
 		case 5:
-			writing(dynamic_array, &number_of_dynArray_elements);
+			writing(dynamic_array, number_of_dynArray_elements);
 			break;
 		case 6:
 			while (point != 2)
@@ -140,9 +140,7 @@ int main()
 		}
 	}
 
-
-
-	return 2;
+	return 3;
 }
 
 //FUNCTIONS
@@ -159,13 +157,13 @@ struct ram* edit_entry(struct ram* dynamic_array, int i)
 }
 
 //------------запись данных из динамического массива структур в файл
-void writing(struct ram* dynamic_array, int* ptr_to_number_of_elements)
+void writing(struct ram* dynamic_array, int number_of_dynArray_elements)
 {
 	FILE* file;
 
 	file = fopen("entries.txt", "w");
 
-	for (int i = 0; i < *ptr_to_number_of_elements; i++)
+	for (int i = 0; i < number_of_dynArray_elements; i++)
 	{
 		fprintf(file, "%d. %8s %d %f %d %s\n", i + 1, dynamic_array[i].name, dynamic_array[i].amount, dynamic_array[i].supply_voltage, dynamic_array[i].clock_frequency, dynamic_array[i].type);
 	}
@@ -252,88 +250,28 @@ struct ram* find_entry(struct ram* dynamic_array, int i, int point, int first_va
 //------------Сортировка динамического массива структур выбором по возрастанию/убыванию
 struct ram* sort(struct ram* dynamic_array, int* ptr_to_number_of_elements, int point)
 {
-	int maxPosition, minPosition;
-
-	//Структура для временного хранения записей
-	struct temp {
-		int amount;
-		char name[9];
-		float supply_voltage;
-		int clock_frequency;
-		char type[5];
-	}tmp;
-
-
-	if (point == 1)
+	int Position;
+	
+	for (int i = 0; i < *ptr_to_number_of_elements; i++)
 	{
-		for (int i = 0; i < *ptr_to_number_of_elements; i++)
-		{
-			maxPosition = i;
-			for (int j = i + 1; j < *ptr_to_number_of_elements; j++)
-				if (dynamic_array[maxPosition].amount < dynamic_array[j].amount)
-					maxPosition = j;
-
-			for (int k = 0; k < 9; k++)
+		Position = i;
+		for (int j = i + 1; j < *ptr_to_number_of_elements; j++) {
+			if (point == 1)
 			{
-				tmp.name[k] = dynamic_array[maxPosition].name[k];
-				dynamic_array[maxPosition].name[k] = dynamic_array[i].name[k];
-				dynamic_array[i].name[k] = tmp.name[k];
+				if (dynamic_array[Position].amount < dynamic_array[j].amount)
+					Position = j;
 			}
-
-			for (int k = 0; k < 5; k++)
+			if (point == 2)
 			{
-				tmp.type[k] = dynamic_array[maxPosition].type[k];
-				dynamic_array[maxPosition].type[k] = dynamic_array[i].type[k];
-				dynamic_array[i].type[k] = tmp.type[k];
+				if (dynamic_array[Position].amount > dynamic_array[j].amount)
+					Position = j;
 			}
-
-			tmp.amount = dynamic_array[maxPosition].amount;
-			tmp.supply_voltage = dynamic_array[maxPosition].supply_voltage;
-			tmp.clock_frequency = dynamic_array[maxPosition].clock_frequency;
-			dynamic_array[maxPosition].amount = dynamic_array[i].amount;
-			dynamic_array[maxPosition].supply_voltage = dynamic_array[i].supply_voltage;
-			dynamic_array[maxPosition].clock_frequency = dynamic_array[i].clock_frequency;
-			dynamic_array[i].amount = tmp.amount;
-			dynamic_array[i].supply_voltage = tmp.supply_voltage;
-			dynamic_array[i].clock_frequency = tmp.clock_frequency;
 		}
+
+		tmp = dynamic_array[Position];
+		dynamic_array[Position] = dynamic_array[i];
+		dynamic_array[i] = tmp;
 	}
-	else if (point == 2)
-	{
-		for (int i = 0; i < *ptr_to_number_of_elements; i++)
-		{
-			minPosition = i;
-			for (int j = i + 1; j < *ptr_to_number_of_elements; j++)
-				if (dynamic_array[minPosition].amount > dynamic_array[j].amount)
-					minPosition = j;
-
-			for (int k = 0; k < 9; k++)
-			{
-				tmp.name[k] = dynamic_array[minPosition].name[k];
-				dynamic_array[minPosition].name[k] = dynamic_array[i].name[k];
-				dynamic_array[i].name[k] = tmp.name[k];
-			}
-
-			for (int k = 0; k < 5; k++)
-			{
-				tmp.type[k] = dynamic_array[minPosition].type[k];
-				dynamic_array[minPosition].type[k] = dynamic_array[i].type[k];
-				dynamic_array[i].type[k] = tmp.type[k];
-			}
-
-			tmp.amount = dynamic_array[minPosition].amount;
-			tmp.supply_voltage = dynamic_array[minPosition].supply_voltage;
-			tmp.clock_frequency = dynamic_array[minPosition].clock_frequency;
-			dynamic_array[minPosition].amount = dynamic_array[i].amount;
-			dynamic_array[minPosition].supply_voltage = dynamic_array[i].supply_voltage;
-			dynamic_array[minPosition].clock_frequency = dynamic_array[i].clock_frequency;
-			dynamic_array[i].amount = tmp.amount;
-			dynamic_array[i].supply_voltage = tmp.supply_voltage;
-			dynamic_array[i].clock_frequency = tmp.clock_frequency;
-		}
-	}
-
-
 
 	return dynamic_array;
 }
