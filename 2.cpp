@@ -44,7 +44,7 @@ void Task1() {
 		iter2 = 0;
 		func1 = Func(x, eps1, &iter1);
 		func2 = Func(x, eps2, &iter2);
-		printf("| %18.1lf| %17.7lf| %15d| %14.1lf | %16.7e | %14d | %15.7lf|\n", x, func1, iter1 / 2, eps1, func2, iter2 / 2, eps2);
+		printf("| %18.1lf| %17.7lf| %15d| %14.1lf | %16.7e | %14d | %15.7lf|\n", x, func1, iter1, eps1, func2, iter2, eps2);
 
 		x += dx;
 	}
