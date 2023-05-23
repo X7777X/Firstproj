@@ -21,10 +21,8 @@ double Func(double x, double eps, int* i) {
 
 	do {
 		result = lastresult;
-		if((* i / 2) % 2 != 0)
-			lastresult = -(pow(x, *i) / factorial(*i));
-		else lastresult = (pow(x, *i) / factorial(*i));
-		(*i)+=2;
+		lastresult = (pow(-1, *i) * pow(x, 2 * *i)) / factorial(2 * *i);
+		(*i)++;
 	} while (fabs(lastresult - result) >= eps);
 
 	return lastresult;
@@ -35,9 +33,9 @@ double Func(double x, double eps, int* i) {
 
 
 void Task1() {
-	long double func1 = 0, func2 = 0;          
+	long double func1 = 0, func2 = 0;
 	double x = (-0.90), dx = 0.1, eps1 = 0.1, eps2 = 0.000001;
-	int iter1 = 0, iter2 = 0;         
+	int iter1 = 0, iter2 = 0;
 
 	cout << "|         X         |        f1        |      count1    |       eps1     |        f2        |       count2   |      eps2      |\n";
 	while (x <= 0.9) {
@@ -46,7 +44,7 @@ void Task1() {
 		iter2 = 0;
 		func1 = Func(x, eps1, &iter1);
 		func2 = Func(x, eps2, &iter2);
-		printf("| %18.1lf| %17.7lf| %15d| %14.1lf | %16.7e | %14d | %15.7lf|\n", x, func1, iter1/2, eps1, func2, iter2/2, eps2);
+		printf("| %18.1lf| %17.7lf| %15d| %14.1lf | %16.7e | %14d | %15.7lf|\n", x, func1, iter1 / 2, eps1, func2, iter2 / 2, eps2);
 
 		x += dx;
 	}
@@ -78,6 +76,7 @@ void Task3() {
 	for (int k = 1; k <= n; k++)
 	{
 		res[k] = pow(k, 3) * sin(n + k / n);
+		cout << "при k = " << k << ": " << res[k] << endl;
 	}
 	for (int k = 1; k <= n; k++)
 	{
