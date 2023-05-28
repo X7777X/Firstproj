@@ -1,281 +1,319 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iomanip>
+using namespace std;
+
+enum TransactionType { Deposit, Withdrawal, Transfer };
 
 class Person {
 protected:
     std::string name;
-
 public:
     Person(std::string name) : name(name) {}
-
-    std::string get_name() const { return name; }
-
-    virtual void display() const {
-        std::cout << "Name: " << name << std::endl;
+    virtual void display_person() {
+        std::cout << "Name: " << setw(6) << name << ";";
     }
 };
 
 class Transaction {
 private:
-    std::string type;
+    string transaction_id;
+    TransactionType type;
     double amount;
-    std::string account_name;
+    time_t timestamp;
 
 public:
-    Transaction(std::string type, double amount, std::string account_name)
-        : type(type), amount(amount), account_name(account_name) {}
-
-    void display() const {
-        std::cout << "Transaction: " << type << ", Amount: " << amount
-            << ", Account: " << account_name << std::endl;
+    Transaction(std::string id, TransactionType type, double amount)
+        : transaction_id(id), type(type), amount(amount) {
+        this->timestamp = time(0);
     }
-};
 
-class Loan {
-protected:
-    double amount;
-    double interest_rate;
-    Person* client;
-
-public:
-    Loan(double amount, double interest_rate, Person* client)
-        : amount(amount), interest_rate(interest_rate), client(client) {}
-
-    virtual void display() const {
-        std::cout << "Loan: " << amount << ", Interest rate: " << interest_rate
-            << ", Client: " << client->get_name() << std::endl;
+    string getId() const {
+        return this->transaction_id;
     }
-};
 
-class Mortgage : public Loan {
-private:
-    int term_in_years;
-
-public:
-    Mortgage(double amount, double interest_rate, Person* client, int term_in_years)
-        : Loan(amount, interest_rate, client), term_in_years(term_in_years) {}
-
-    void display() const override {
-        Loan::display();
-        std::cout << "Term in years: " << term_in_years << std::endl;
+    TransactionType getType() const {
+        return this->type;
     }
-};
 
-class Card {
-protected:
-    std::string number;
-    Account* account;
-
-public:
-    Card(std::string number, Account* account)
-        : number(number), account(account) {}
-
-    virtual void display() const {
-        std::cout << "Card: " << number << ", Account: " << account->get_name() << std::endl;
+    double getAmount() const {
+        return this->amount;
     }
-};
 
-class DebitCard : public Card {
-public:
-    DebitCard(std::string number, Account* account) : Card(number, account) {}
-
-    void display() const override {
-        Card::display();
-        std::cout << "Type: Debit Card" << std::endl;
-    }
-};
-
-class CreditCard : public Card {
-public:
-    CreditCard(std::string number, Account* account) : Card(number, account) {}
-
-    void display() const override {
-        Card::display();
-        std::cout << "Type: Credit Card" << std::endl;
+    time_t getTimestamp() const {
+        return this->timestamp;
     }
 };
 
 class Account {
 protected:
-    std::string name;
+    std::string account_name;
     double balance;
-    std::vector<Transaction> transactions;
-
+    vector<Transaction> transactions;
 public:
-    Account(std::string name, double balance) : name(name), balance(balance) {}
+    Account(std::string name, double initial_balance) : account_name(name), balance(initial_balance) {}
 
-    std::string get_name() const { return name; }
+    virtual bool deposit(double amount) = 0;
 
-    double get_balance() const { return balance; }
+    virtual bool withdraw(double amount) = 0;
 
-    virtual bool deposit(double amount) {
-        if (amount <= 0) return false;
-        balance += amount;
-        transactions.push_back(Transaction("deposit", amount, name));
-        return true;
-    }
+    virtual bool transfer(Account* to, double amount) = 0;
 
-    virtual bool withdraw(double amount) {
-        if (amount <= 0 || amount > balance) return false;
-        balance -= amount;
-        transactions.push_back(Transaction("withdraw", amount, name));
-        return true;
-    }
-
-    virtual bool transfer(Account* account, double amount) {
-        if (withdraw(amount)) {
-            if (account->deposit(amount)) {
-                transactions.push_back(Transaction("transfer", amount, account->get_name()));
-                return true;
-            }
-            deposit(amount); // reverse withdrawal if deposit failed
-        }
-        return false;
-    }
-
-    virtual void display() const {
-        std::cout << "Account: " << name << ", Balance: " << balance << std::endl;
-        for (const Transaction& transaction : transactions) {
-            transaction.display();
-        }
-    }
+    virtual void display_account() const = 0;
 };
 
 class SavingsAccount : public Account {
 private:
     double interest_rate;
-
 public:
-    SavingsAccount(std::string name, double balance, double interest_rate)
-        : Account(name, balance), interest_rate(interest_rate) {}
+    SavingsAccount(std::string name, double initial_balance, double interest_rate)
+        : Account(name, initial_balance), interest_rate(interest_rate) {}
 
-    void add_interest() {
-        double interest = balance * (interest_rate / 100);
-        deposit(interest);
+    bool deposit(double amount) override {
+        if (amount < 0) {
+            return false;
+        }
+        balance += amount;
+        balance += balance * interest_rate;
+        return true;
     }
-
-    void display() const override {
-        Account::display();
-        std::cout << "Interest Rate: " << interest_rate << std::endl;
+    virtual bool withdraw(double amount){}
+    virtual bool transfer(Account* to, double amount){}
+    void display_account() const override {
+        std::cout << "Savings Account holder: " << account_name << ", Balance: " << balance
+            << ", Interest rate: " << interest_rate << std::endl;
     }
 };
 
 class CheckingAccount : public Account {
 public:
-    CheckingAccount(std::string name, double balance)
-        : Account(name, balance) {}
+    CheckingAccount(std::string name, double initial_balance)
+        : Account(name, initial_balance) {}
+
+    bool withdraw(double amount) override {
+        if (balance - amount >= 0) {
+            balance -= amount;
+            return true;
+        }
+        balance -= 20.0; // penalty
+        return false;
+    }
+
+    void display_account() const override {
+        std::cout << "Checking Account holder: " << account_name << ", Balance: " << balance << std::endl;
+    }
 };
 
-class Client : public Person {
+class CreditAccount : public Account {
+private:
+    double credit_limit;
+public:
+    CreditAccount(std::string name, double initial_balance, double credit_limit)
+        : Account(name, initial_balance), credit_limit(credit_limit) {}
+
+    bool withdraw(double amount) override {
+        if (balance + credit_limit - amount >= 0) {
+            balance -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    void display_account() const override {
+        std::cout << "Credit Account holder: " << account_name << ", Balance: " << balance
+            << ", Credit limit: " << credit_limit << std::endl;
+    }
+};
+
+class Customer : public Person {
 private:
     std::vector<Account*> accounts;
-
+    int customerid;
 public:
-    Client(std::string name) : Person(name) {}
+    Customer(std::string name,  int customerid) : Person(name), customerid(customerid) {}
 
     void add_account(Account* account) {
         accounts.push_back(account);
     }
 
-    void display() const override {
-        Person::display();
-        for (const Account* account : accounts) {
-            account->display();
+    void display_accounts() {
+        for (Account* account : accounts) {
+            account->display_account();
         }
     }
-};
+    void display_person() override {
+        Person::display_person();
+        cout << " Customerid: " << customerid << endl;
+    }
 
+
+};
 class BankEmployee : public Person {
 public:
     BankEmployee(std::string name) : Person(name) {}
+
+    void display_person() override {
+        std::cout << "Bank employee name: " << name << std::endl;
+    }
 };
 
 class BankManager : public BankEmployee {
-private:
-    std::vector<Loan*> loans;
-
 public:
     BankManager(std::string name) : BankEmployee(name) {}
 
-    void add_loan(Loan* loan) {
-        loans.push_back(loan);
-    }
-
-    void display() const override {
-        BankEmployee::display();
-        for (const Loan* loan : loans) {
-            loan->display();
-        }
+    void display_person() override {
+        std::cout << "Bank manager name: " << name << std::endl;
     }
 };
 
-class BankTeller : public BankEmployee {
-public:
-    BankTeller(std::string name) : BankEmployee(name) {}
-};
-
-class Branch {
+class ATM {
 private:
-    std::string name;
-    BankManager* manager;
-    std::vector<BankTeller*> tellers;
-
+    string name;
 public:
-    Branch(std::string name, BankManager* manager)
-        : name(name), manager(manager) {}
-
-    void add_teller(BankTeller* teller) {
-        tellers.push_back(teller);
+    ATM(string name) : name(name) {}
+    bool withdraw(Account* account, double amount) {
+        return account->withdraw(amount);
     }
 
-    void display() const {
-        std::cout << "Branch: " << name << std::endl;
-        manager->display();
-        for (const BankTeller* teller : tellers) {
-            teller->display();
-        }
+    bool deposit(Account* account, double amount) {
+        return account->deposit(amount);
     }
+
+    bool transfer(Account* from, Account* to, double amount) {
+        return from->transfer(to, amount);
+    }
+    
+    void display_atms()
+    {
+        cout << "ATM: " << name << endl;
+    }
+ 
 };
+
+
 
 class Bank {
 private:
-    std::string name;
-    std::vector<Branch*> branches;
+    std::vector<Customer*> customers;
+    std::vector<BankEmployee*> employees;
+    BankManager* manager;
+    std::vector<ATM*> atms;
 
 public:
-    Bank(std::string name) : name(name) {}
+    Bank(BankManager* manager) : manager(manager) {}
 
-    void add_branch(Branch* branch) {
-        branches.push_back(branch);
+
+    Customer& findCustomer(int customerId) {
+        // возвращение ссылки на клиента с заданным ID
     }
 
-    void display_all() const {
-        std::cout << "Bank: " << name << std::endl;
-        for (const Branch* branch : branches) {
-            branch->display();
+    Account& findAccount(int accountId, Customer& customer) {
+        // возвращение ссылки на счет с заданным ID для заданного клиента
+    }
+    void add_customer(Person* customer) {
+        customers.push_back(dynamic_cast<Customer*>(customer));
+    }
+
+    void add_employee(BankEmployee* employee) {
+        employees.push_back(employee);
+    }
+
+    void add_atm(ATM* atm) {
+        atms.push_back(atm);
+    }
+
+    void display_customers() {
+        for (Customer* customer : customers) {
+            customer->display_person();
         }
+        
+    }
+
+    bool hasCustomers() const {
+        return !customers.empty();
+    }
+
+    void display_accounts() {
+        for (Customer* customer : customers) {
+            customer->display_accounts();
+        }
+    }
+
+    void display_employees() {
+        for (BankEmployee* employee : employees) {
+            employee->display_person();
+        }
+    }
+
+    void display_manager() {
+        manager->display_person();
+    }
+
+    void display_atms() {
+        for (ATM* atm : atms) {
+            atm->display_atms();
+        }
+    }
+
+    void display_all() {
+        std::cout << "Bank manager:\n";
+        display_manager();
+        std::cout << "\nBank employees:\n";
+        display_employees();
+        std::cout << "\nBank customers:\n";
+        display_customers();
     }
 };
 
 int main() {
-    Bank bank("Grand Bank");
+    system("chcp 1251");
+    Person* cust1 = new Customer("Tom", 1);
+    Person* cust2 = new Customer("T", 2);
+    Person* cust3 = new Customer("O", 4);
+    Bank bank(new BankManager("g"));
+ /*   bank.add_customer(cust1);
+    bank.add_customer(cust2);
+    bank.add_customer(cust3);*/
+    bank.add_customer(cust1);
+    bank.add_customer(cust2);
+    bank.add_customer(cust3);
 
-    Client* client = new Client("John Doe");
-    client->add_account(new SavingsAccount("Savings 1", 1000, 1.5));
-    client->add_account(new CheckingAccount("Checking 1", 500));
 
-    BankManager* manager = new BankManager("Manager 1");
-    manager->add_loan(new Loan(5000, 2.5, client));
-    manager->add_loan(new Mortgage(200000, 2, client, 30));
+    cout << "Перевод денег" << endl;
+    if (bank.hasCustomers())
+    {
+        bank.display_customers();
+    }
+    else
+        cout << "В банке нет клиентов.";
 
-    Branch* branch = new Branch("Downtown", manager);
-    branch->add_teller(new BankTeller("Teller 1"));
-    branch->add_teller(new BankTeller("Teller 2"));
 
-    bank.add_branch(branch);
 
-    bank.display_all();
+
+
+
+   /* Bank bank(new BankManager("Manager"));
+    bank.add_employee(new BankEmployee("Employee1"));
+    bank.add_employee(new BankEmployee("Employee2"));
+
+    Customer* customer1 = new Customer("Alice");
+    customer1->add_account(new SavingsAccount("Alice", 1000.0, 0.02));
+    bank.add_customer(customer1);
+
+    Customer* customer2 = new Customer("Bob");
+    customer2->add_account(new CheckingAccount("Bob", 500.0));
+    bank.add_customer(customer2);
+
+    Customer* customer3 = new Customer("Charlie");
+    customer3->add_account(new CreditAccount("Charlie", 500.0, 1000.0));
+    bank.add_customer(customer3);
+
+    bank.add_atm(new ATM());
+
+    bank.display_all();*/
 
     return 0;
 }
+
+
