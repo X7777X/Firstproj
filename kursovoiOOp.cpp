@@ -20,11 +20,34 @@ public:
 
 };
 
+class Transaction {
+private:
+    std::string sender_id;
+    std::string receiver_id;
+    std::string account_number;
+    std::string type;
+    double amount;
+
+public:
+    Transaction(const std::string& account_number, const std::string& type, double amount, const std::string& receiver_id = "")
+        : account_number(account_number), type(type), amount(amount) {}
+
+    void display() const {
+        std::cout << "Account number: " << account_number << ", Type: " << type << ", Amount: " << amount << std::endl;
+    }
+
+    void set_receiver_id(const std::string& receiver_id) {
+        this->receiver_id = receiver_id;
+    }
+
+
+};
 
 class Account {
 protected:
     std::string account_name, account_id;
     double balance;
+    std::vector<Transaction> transaction_history;
 public:
     Account(std::string name, double initial_balance, string account_id) : account_name(name), balance(initial_balance), account_id(account_id) {}
 
@@ -33,23 +56,33 @@ public:
             return false;
         }
         balance += amount;
+        add_transaction("Deposit", amount);
         return true;
     }
 
     virtual bool withdraw(double amount) {
         if (balance - amount >= 0) {
             balance -= amount;
+            add_transaction("Deposit", amount);
             return true;
         }
         return false;
     }
 
-    virtual bool transfer(Account* to, double amount) {
+
+    bool transfer(Account* to, double amount) {
         if (withdraw(amount)) {
-            return to->deposit(amount);
+            to->deposit(amount);
+
+            add_transaction("Transfer", amount);
+            to->add_transaction("Transfer", amount, to->get_account_ID());
+
+            return true;
         }
         return false;
     }
+
+
 
     double get_balance() {
         return balance;
@@ -67,6 +100,28 @@ public:
     virtual void display() {
         std::cout << "Account holder: " << account_name << ", Balance: " << balance << std::endl;
     }
+
+    void add_transaction(const std::string& type, double amount, const std::string& receiver_id = "") {
+        Transaction transaction(account_id, type, amount);
+
+        if (type == "Transfer" && !receiver_id.empty()) {
+            transaction.set_receiver_id(receiver_id);
+        }
+
+        transaction_history.push_back(transaction);
+    }
+
+
+    bool has_transactions() const {
+        return !transaction_history.empty();
+    }
+
+    void display_transaction_history() const {
+        std::cout << "Transaction history for account: " << account_id << std::endl;
+        for (const Transaction& transaction : transaction_history) {
+            transaction.display();
+        }
+    }
 };
 
 class SavingsAccount : public Account {
@@ -82,6 +137,7 @@ public:
         }
         balance += amount;
         balance += balance * interest_rate;
+        add_transaction("Deposit", amount);
         return true;
     }
 
@@ -99,6 +155,7 @@ public:
     bool withdraw(double amount) override {
         if (balance - amount >= 0) {
             balance -= amount;
+            add_transaction("Withdrawal", amount);
             return true;
         }
         balance -= 20.0; // penalty
@@ -120,6 +177,7 @@ public:
     bool withdraw(double amount) override {
         if (balance + credit_limit - amount >= 0) {
             balance -= amount;
+            add_transaction("Withdrawal", amount);
             return true;
         }
         return false;
@@ -155,6 +213,19 @@ public:
     vector<Account*> get_accounts() const {
         return accounts;
     }
+
+    void displayTransactionHistory() const {
+        std::cout << "Transaction history for customer: " << name << std::endl;
+        for (Account* account : accounts) {
+            if (account->has_transactions()) {
+                account->display_transaction_history();
+            }
+            else {
+                std::cout << "No transactions found for account: " << account->get_account_ID() << std::endl;
+            }
+        }
+    }
+
 };
 
 class BankEmployee : public Person {
@@ -167,26 +238,11 @@ public:
 };
 
 
-class ATM {
-public:
-    bool withdraw(Account* account, double amount) {
-        return account->withdraw(amount);
-    }
-
-    bool deposit(Account* account, double amount) {
-        return account->deposit(amount);
-    }
-
-    bool transfer(Account* from, Account* to, double amount) {
-        return from->transfer(to, amount);
-    }
-};
 
 class Bank {
 private:
     std::vector<Customer*> customers;
     std::vector<BankEmployee*> employees;
-    std::vector<ATM*> atms;
     std::string bankmanager;
 
 public:
@@ -197,10 +253,6 @@ public:
 
     void add_employee(BankEmployee* employee) {
         employees.push_back(employee);
-    }
-
-    void add_atm(ATM* atm) {
-        atms.push_back(atm);
     }
 
     void display_customers() {
@@ -229,15 +281,7 @@ public:
         display_customers();
     }
 
-    int find_customer_index(const std::string& name) {
-        for (int i = 0; i < customers.size(); ++i) {
-            if (customers[i]->get_name() == name) {
-                return i; // Возвращаем индекс найденного клиента
-            }
-        }
-        return -1;
-    }
-
+  
     void display_customer_accounts(const std::string& name) {
         int customerIndex = find_customer_index(name);
         if (customerIndex != -1) {
@@ -247,6 +291,34 @@ public:
         else {
             std::cout << "Клиент не найден." << std::endl;
         }
+    }
+
+
+    void display_account_transaction_history(const std::string& account_number) {
+        for (Customer* customer : customers) {
+            for (Account* account : customer->get_accounts()) {
+                if (account->get_account_ID() == account_number) {
+                    if (account->has_transactions()) {
+                        std::cout << "Transaction history for account: " << account_number << std::endl;
+                        account->display_transaction_history();
+                    }
+                    else {
+                        std::cout << "No transactions found for account: " << account_number << std::endl;
+                    }
+                    return;
+                }
+            }
+        }
+        std::cout << "Account not found: " << account_number << std::endl;
+    }
+
+    int find_customer_index(const std::string& name) {
+        for (int i = 0; i < customers.size(); ++i) {
+            if (customers[i]->get_name() == name) {
+                return i; // Возвращаем индекс найденного клиента
+            }
+        }
+        return -1;
     }
 
     void perform_account_action(const std::string& customer_name, const std::string& account_number, int action, double amount) {
@@ -289,17 +361,68 @@ public:
             std::cout << "Клиент не найден." << std::endl;
         }
     }
+
+    void perform_money_transfer(const std::string& sender_name, const std::string& receiver_name, double amount, const std::string& sender_account_number, const std::string& receiver_account_number) {
+        int sender_index = find_customer_index(sender_name);
+        if (sender_index == -1) {
+            std::cout << "Sender not found: " << sender_name << std::endl;
+            return;
+        }
+        Customer* sender = customers[sender_index];
+
+        int receiver_index = find_customer_index(receiver_name);
+        if (receiver_index == -1) {
+            std::cout << "Receiver not found: " << receiver_name << std::endl;
+            return;
+        }
+        Customer* receiver = customers[receiver_index];
+
+        // Находим аккаунт отправителя
+        Account* sender_account = nullptr;
+        for (Account* account : sender->get_accounts()) {
+            if (account->get_account_ID() == sender_account_number) {
+                sender_account = account;
+                break;
+            }
+        }
+        if (sender_account == nullptr) {
+            std::cout << "Sender account not found: " << sender_account_number << std::endl;
+            return;
+        }
+
+        // Находим аккаунт получателя
+        Account* receiver_account = nullptr;
+        for (Account* account : receiver->get_accounts()) {
+            if (account->get_account_ID() == receiver_account_number) {
+                receiver_account = account;
+                break;
+            }
+        }
+        if (receiver_account == nullptr) {
+            std::cout << "Receiver account not found: " << receiver_account_number << std::endl;
+            return;
+        }
+
+        bool transfer_success = sender_account->transfer(receiver_account, amount);
+        if (transfer_success) {
+            std::cout << "Money transfer successful." << std::endl;
+        }
+        else {
+            std::cout << "Money transfer failed." << std::endl;
+        }
+    }
+
 };
 
 int main() {
-    string name_of_client;
-    string input_number_of_account;
+    string name_of_client, name_of_client2;
+    string input_number_of_account, input_number_of_account2;
     int input_function;
 
     system("chcp 1251");
- 
+
     Bank bank("Tom");
- 
+
 
     bank.add_employee(new BankEmployee("Employee1"));
     bank.add_employee(new BankEmployee("Employee2"));
@@ -316,23 +439,43 @@ int main() {
     customer1->add_account(new SavingsAccount("Bob", 1000, "33", 0.02));
     bank.add_customer(customer1);
 
+      /*  cout << "Вывод всех клиентов" << endl;
+        bank.display_customers();
+        cout << "Введите имя клиента: " << endl;
+        cin >> name_of_client;
+        cout << "Вывод аккаунтов пользователя:" << endl;
+        bank.display_customer_accounts(name_of_client);
+        cout << "Выберите аккаунт: " << endl;
+        cin >> input_number_of_account;
+        cout << "Операции с деньгами" << endl;
+        cout << "1. Положить; 2. Снять; 3. Перевести" << endl;
+        cin >> input_function;
+        bank.perform_account_action(name_of_client, input_number_of_account, input_function, 100);
+        cout << "Вывод истории транзакций: " << endl;
+        bank.display_account_transaction_history(input_number_of_account);*/
+
+ 
+    cout << "Перевод" << endl;
     cout << "Вывод всех клиентов" << endl;
     bank.display_customers();
-    cout << "Вывод всех аккаунтов." << endl;
-    bank.display_accounts();
-    cout << "Операции с деньгами" << endl;
-    cout << "1. Снять; 2. Положить. 3. Перевести" << endl;
-    cout << "Вывод всех клиентов" << endl;
-    bank.display_customers();
-    cout << "Введите имя клиента: " << endl;
+    cout << "выберите отправителя: ";
     cin >> name_of_client;
     bank.display_customer_accounts(name_of_client);
-    cout << "Выберите аккаунт: " << endl;
+    cout << "Выберите аккаунт отправителя:" << endl;
     cin >> input_number_of_account;
-    cout << "1. Положить 2. Снять" << endl;
-    cin >> input_function;
-    bank.perform_account_action(name_of_client, input_number_of_account, input_function, 100);
+    cout << "выберите получателя: ";
+    cin >> name_of_client2;
+    bank.display_customer_accounts(name_of_client2);
+    cout << "Выберите аккаунт получателя:" << endl;
+    cin >> input_number_of_account2;
+    bank.perform_money_transfer(name_of_client, name_of_client2, 100, input_number_of_account, input_number_of_account2);
+    bank.display_accounts();
 
+  
+
+
+
+   // cout << "Перевод деняк" << endl;
 
 
 
